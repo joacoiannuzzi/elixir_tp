@@ -1,8 +1,12 @@
 defmodule Ping do
   use GenServer
 
-  def init(init_arg) do
-    {:ok, init_arg}
+  defmodule State do
+    defstruct msg_count: 0
+  end
+
+  def init(stack) do
+    {:ok, stack}
   end
 
   def start_link(a) do
@@ -13,6 +17,13 @@ defmodule Ping do
     {:reply, :ball, state}
   end
 
+  def handle_cast({:play, n}, state) do
+    Enum.each(1..n, fn _ ->
+      Pong.send()
+    end)
+  end
+
   def play(n) do
+    GenServer.call(__MODULE__, {:play, n})
   end
 end
