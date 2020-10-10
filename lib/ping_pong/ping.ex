@@ -13,20 +13,12 @@ defmodule Ping do
     end
   end
 
-  def init(init_arg) do
-    {:ok, init_arg}
-  end
+  ### GenServer API
 
-  def start_link(_init_arg) do
-    GenServer.start_link(__MODULE__, State.new(0), name: __MODULE__)
-  end
+  def init(init_arg), do: {:ok, init_arg}
 
   def handle_call(:stats, _from, state) do
-    frecuency =
-      System.monotonic_time(:second)
-      |> (fn finish_time -> finish_time - state.start_time end).()
-      |> (fn diff_time -> diff_time / state.msg_count end).()
-      |> (fn period -> 1 / period end).()
+    frecuency = state.msg_count / (System.monotonic_time(:second) - state.start_time)
 
     response = %{
       msg_count: state.msg_count,
@@ -52,15 +44,14 @@ defmodule Ping do
     {:noreply, new_state}
   end
 
-  def send() do
-    GenServer.cast(__MODULE__, :ball)
-  end
+  ### Client API / Helper functions
 
-  def play(n) do
-    GenServer.cast(__MODULE__, {:play, n})
-  end
+  alias GenServer, as: Gn
+  def start_link(_init_arg), do: GenServer.start_link(__MODULE__, State.new(0), name: __MODULE__)
 
-  def stats do
-    GenServer.call(__MODULE__, :stats)
-  end
+  def play(n), do: Gn.cast(__MODULE__, {:play, n})
+
+  def send(), do: Gn.cast(__MODULE__, :ball)
+
+  def stats(), do: Gn.call(__MODULE__, :stats)
 end
