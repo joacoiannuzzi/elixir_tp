@@ -12,7 +12,7 @@ defmodule Translator do
     defstruct quantity_of_documents: 0,
               quantity_of_translated_words: 0,
               translations: %{},
-              translationFrequencies: %{}
+              translation_frequencies: %{}
 
     def new(translations) do
       %State{
@@ -29,14 +29,14 @@ defmodule Translator do
 
     def update_quantity_of_translated_words(state) do
       value =
-        Map.values(state.translationFrequencies)
+        Map.values(state.translation_frequencies)
         |> Enum.sum()
 
       %{state | quantity_of_translated_words: value}
     end
 
     def update_frequencies(state, newMap) do
-      %{state | translationFrequencies: newMap}
+      %{state | translation_frequencies: newMap}
     end
   end
 
@@ -52,7 +52,7 @@ defmodule Translator do
     response = %{
       quantity_of_translated_words: state.quantity_of_translated_words,
       quantity_of_documents: state.quantity_of_documents,
-      translationFrequencies: state.translationFrequencies
+      translation_frequencies: state.translation_frequencies
     }
 
     {:reply, response, state}
@@ -69,7 +69,7 @@ defmodule Translator do
       words
       |> String.split()
       |> Enum.frequencies()
-      |> Map.merge(state.translationFrequencies, fn _k, v1, v2 -> v1 + v2 end)
+      |> Map.merge(state.translation_frequencies, fn _k, v1, v2 -> v1 + v2 end)
 
     newState =
       state
