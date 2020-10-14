@@ -24,23 +24,19 @@ defmodule Translator do
       %{state | quantity_of_documents: state.quantity_of_documents + 1}
     end
 
-    # Map.values(%{a: 1, b: 2})
-    # [1, 2]
-
     def update_quantity_of_translated_words(state) do
       value =
-        Map.values(state.translation_frequencies)
+        state.translation_frequencies
+        |> Map.values()
         |> Enum.sum()
 
       %{state | quantity_of_translated_words: value}
     end
 
-    def update_frequencies(state, newMap) do
-      %{state | translation_frequencies: newMap}
+    def update_frequencies(state, new_frequencies) do
+      %{state | translation_frequencies: new_frequencies}
     end
   end
-
-  # %{“hello” -> 4, “world” -> 2}
 
   ### GenServer API
 
@@ -65,7 +61,7 @@ defmodule Translator do
       |> Enum.map(fn word -> Map.get(state.translations, word) end)
       |> Enum.join(" ")
 
-    newMap =
+    new_frequencies =
       words
       |> String.split()
       |> Enum.frequencies()
@@ -73,7 +69,7 @@ defmodule Translator do
 
     newState =
       state
-      |> State.update_frequencies(newMap)
+      |> State.update_frequencies(new_frequencies)
       |> State.update_quantity_of_translated_words()
       |> State.increase_count_of_documents()
 
